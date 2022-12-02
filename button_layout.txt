@@ -22,8 +22,8 @@ stopwatch = start/stop = bC
 	    reset = CPU reset
 	
 
-bC = mode switch 24hr -> timer -> stopwatch -> 24hr
-bU
+bC
+bU = mode switch 24hr -> timer -> stopwatch -> 24hr
 bL
 bR
 bD
