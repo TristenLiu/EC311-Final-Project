@@ -8,14 +8,18 @@ if mode = timer
 	wiretimer = button 1
 
 
-timer = 1 start/stop = bC
-	1 reset	     = CPU reset
+timer = start/stop = bC
+	toggle edit mode = bD
+		move to left digit = bL
+		move to right digit = bR
+		increment digit = bC
+	reset = CPU reset
 
 24hr/12hr = 1 change mode 12hr = switch
-	    toggle timer set = bD
-	    change left digit = bL
-	    increment digit = bC
-	    change right digit bR
+	    toggle edit mode = bD
+	    	move to left digit = bL
+		move to right digit = bR
+		increment digit = bC
 	    reset = CPU reset
 
 stopwatch = start/stop = bC
