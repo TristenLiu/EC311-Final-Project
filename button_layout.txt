@@ -1,0 +1,36 @@
+input button0
+input button1
+input button2
+input button3
+input button4
+
+if mode = timer
+	wiretimer = button 1
+
+
+timer = 1 start/stop = b2
+	1 reset	     = CPU reset
+
+24hr/12hr = 1 change mode 12hr = switch
+	    toggle timer set = b4
+	    change left digit = b1
+	    increment digit = b2
+	    change right digit b3
+	    reset = CPU reset
+
+stopwatch = start/stop = b2
+	    reset = CPU reset
+	
+
+24hr / 12hr switch
+
+b0 = mode switch 24hr -> timer -> stopwatch -> 24hr
+b1
+b2
+b3
+b4
+
+
+	b0
+b1	b2	b3
+	b4
