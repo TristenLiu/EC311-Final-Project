@@ -26,7 +26,7 @@ module clock12_24(input clk, rst, m_sw, edit_sw, bD, bL, bR, bC, output reg fmt,
 									if(timeReg[27:24] == 4b'0101)	//Check 1st minute digit
 										timeReg[27:24] <= 0;
 										case(timeReg[35:28]) begin		//Check hour digits
-											8b'00010010: begin timeReg[35:28] <= 0; timeReg[36] <= !timeReg[36]; end	//Change hour counting format???
+											8b'00010010: begin timeReg[35:28] <= 0; timeReg[36] <= 1; end
 											8b'00001011: timeReg[35:28] <= 8b'00010000;
 											default: timeReg[31:28] <= timeReg[31:28] + 4b'0001;
 										endcase
