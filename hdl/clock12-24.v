@@ -1,8 +1,6 @@
-module clock12_24(input clk, rst, m_sw, edit_sw, bD, bL, bR, bC, output reg fmt, ampm, [3:0]hrL, [3:0]hrR, [3:0]mL, [3:0]mR, [3:0]sL, [3:0]sR, [3:0]milL, [3:0]milM, [3:0]milR);
+module clock12_24(input clk, m_sw, edit_sw, bD, bL, bR, bC, output reg fmt, ampm, [3:0]hrL, [3:0]hrR, [3:0]mL, [3:0]mR, [3:0]sL, [3:0]sR, [3:0]milL, [3:0]milM, [3:0]milR);
 	reg edit_mode = 1;
-	reg [36:0] timeReg;
-	timeReg[36:28] = 9b'000010010;	//For the AM/PM bit, AM = 0, PM = 1!!!
-	timeReg[27:0] = 0;
+	reg [36:0] timeReg = 0;	//For the AM/PM bit, AM = 0, PM = 1!!!
 	reg [1:0] currDigit = 0;
 	reg [7:0] hr_buffer;
 	
@@ -10,50 +8,50 @@ module clock12_24(input clk, rst, m_sw, edit_sw, bD, bL, bR, bC, output reg fmt,
 		//Handle Button inputs (making sure they don't interfere with edit mode)
 		if(m_sw) fmt <= 1; else fmt <= 0;	//1 is 12hr, 0 is 24hr
 		
-		if(bL and !edit_mode) edit_mode <= 1;
-		else if(bD and !edit_mode) begin
-			timeReg <= 0;
-			edit_mode <= 1;
-		end
-
-		
-		if(!edit_mode) begin //Tick mode
-			if(timeReg[3:0] == 4b'1001) begin	//Check 3rd millisecond digit
-				timeReg[3:0] <= 0;
-				if(timeReg[7:4] == 4b'1001) begin	//Check 2nd millisecond digit
-					timeReg[7:4] <= 0;
-					if(timeReg[11:8] == 4b'1001) begin	//Check 1st millisecond digit
-						timeReg[11:8] <= 0;
-						if(timeReg[15:12] == 4b'1001) begin		//Check 2nd second digit
-							timeReg[15:12] <= 0;
-							if(timeReg[19:16] == 4b'0101) begin		//Check 1st second digit
-								timeReg[19:16] <= 0;
-								if(timeReg[23:20] == 4b'1001) begin		//Check 2nd minute digit
-									timeReg[23:20] <= 0;
-									if(timeReg[27:24] == 4b'0101) begin		//Check 1st minute digit
-										timeReg[27:24] <= 0;
-										case(timeReg[35:28]) begin		//Check hour digits
-											8b'00100011: timeReg[35:28] <= 8b'00000000;	//Change hour counting format??? Yes, to 24!
-											8b'00001001: timeReg[35:28] <= 8b'00010000;
-											8b'00011001: timeReg[35:28] <= 8b'00100000;
-											default: timeReg[31:28] <= timeReg[31:28] + 4b'0001;
-										endcase
-									end
-									else timeReg[27:24] <= timeReg[27:24] + 4b'0001;	//Incr 1st minute digit
-								end
-								else timeReg[23:20] <= timeReg[23:20] + 4b'0001;	//Incr 2nd minute digit
-							end
-							else timeReg[19:16] <= timeReg[19:16] + 4b'0001;	//Incr 1st second digit
-						end
-						else timeReg[15:12] <= timeReg[15:12] + 4b'0001;	//Incr 2nd second digit
-					end
-					else timeReg[11:8] <= timeReg[11:8] + 4b'0001;	//Incr 1st millisecond digit
-				end
-				else timeReg[7:4] <= timeReg[7:4] + 4b'0001;	//Incr 2nd millisecond digit
+		if(!edit_mode) begin
+			if(bL and !edit_mode) edit_mode <= 1;
+			else if(bD and !edit_mode) begin
+				timeReg <= 0;
+				edit_mode <= 1;
 			end
-			else timeReg[3:0] <= timeReg[3:0] + 4b'0001;	//Incr 3rd millisecond digit
+			
+			else begin //Tick mode
+				if(timeReg[3:0] == 4b'1001) begin	//Check 3rd millisecond digit
+					timeReg[3:0] <= 0;
+					if(timeReg[7:4] == 4b'1001) begin	//Check 2nd millisecond digit
+						timeReg[7:4] <= 0;
+						if(timeReg[11:8] == 4b'1001) begin	//Check 1st millisecond digit
+							timeReg[11:8] <= 0;
+							if(timeReg[15:12] == 4b'1001) begin		//Check 2nd second digit
+								timeReg[15:12] <= 0;
+								if(timeReg[19:16] == 4b'0101) begin		//Check 1st second digit
+									timeReg[19:16] <= 0;
+									if(timeReg[23:20] == 4b'1001) begin		//Check 2nd minute digit
+										timeReg[23:20] <= 0;
+										if(timeReg[27:24] == 4b'0101) begin		//Check 1st minute digit
+											timeReg[27:24] <= 0;
+											case(timeReg[35:28]) begin		//Check hour digits
+												8b'00100011: timeReg[35:28] <= 8b'00000000;	//Send 23 to 0
+												8b'00001001: timeReg[35:28] <= 8b'00010000;	//Send 09 to 10
+												8b'00011001: timeReg[35:28] <= 8b'00100000; //Send 19 to 20
+												default: timeReg[31:28] <= timeReg[31:28] + 4b'0001;
+											endcase
+										end
+										else timeReg[27:24] <= timeReg[27:24] + 4b'0001;	//Incr 1st minute digit
+									end
+									else timeReg[23:20] <= timeReg[23:20] + 4b'0001;	//Incr 2nd minute digit
+								end
+								else timeReg[19:16] <= timeReg[19:16] + 4b'0001;	//Incr 1st second digit
+							end
+							else timeReg[15:12] <= timeReg[15:12] + 4b'0001;	//Incr 2nd second digit
+						end
+						else timeReg[11:8] <= timeReg[11:8] + 4b'0001;	//Incr 1st millisecond digit
+					end
+					else timeReg[7:4] <= timeReg[7:4] + 4b'0001;	//Incr 2nd millisecond digit
+				end
+				else timeReg[3:0] <= timeReg[3:0] + 4b'0001;	//Incr 3rd millisecond digit
+			end
 		end
-	
 	end
 	
 	always@(posedge clk) begin
@@ -136,13 +134,8 @@ module clock12_24(input clk, rst, m_sw, edit_sw, bD, bL, bR, bC, output reg fmt,
 			
 			{hrL, hrR} <= hr_buffer;
 		end
-		else {ampm, hrL, hrR} <= timeReg[36:28];
+		else {hrL, hrR} <= timeReg[35:28];
 		
 		{mL, mR, sL, sR, milL, milC, milR} <= timeReg[27:0];
-	end
-	
-	always@(posedge rst) begin
-		timeReg <= 0;
-		edit_mode <= 1;
 	end
 endmodule

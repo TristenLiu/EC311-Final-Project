@@ -131,11 +131,12 @@ module clock12_24(input clk, rst, m_sw, edit_sw, bD, bL, bR, bC, output reg fmt,
 					else hr_buffer <= timeReg[35:28];
 				end
 			endcase
-			if(timeReg[35:28] > 8b'00010001 or timeReg[35:28] == 0) timeReg[36] <= !timeReg[36];
+			if(timeReg[35:28] > 8b'00010001) ampm <= 1;
+			else ampm <= 0;
 			
-			{ampm, hrL, hrR} <= {timeReg[36], hr_buffer};
+			{hrL, hrR} <= hr_buffer;
 		end
-		else {ampm, hrL, hrR} <= timeReg[36:28];
+		else {hrL, hrR} <= timeReg[35:28];
 		
 		{mL, mR, sL, sR, milL, milC, milR} <= timeReg[27:0];
 	end
