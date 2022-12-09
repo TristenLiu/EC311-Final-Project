@@ -18,7 +18,8 @@ module top(
     );
     reg [35:0] top_square_counter;
     wire [35:0] clockCounter, swCounter, timerCounter;
-    wire [1:0] editDigit;
+    reg [1:0] editDigit;
+    wire [1:0] clockEdit, timerEdit;
     reg [1:0] mode;
     wire am_pm, format, edit;
     reg [9:0] hit = 0;
@@ -51,7 +52,7 @@ module top(
                      .fmt(format), 
                      .ampm(am_pm), 
                      .edit(edit),
-                     .currDigit(editDigit), 
+                     .currDigit(clockEdit), 
                      .outReg(clockCounter));
     
     stopwatch sw(.clk_i(clk_i), 
@@ -81,25 +82,19 @@ module top(
     end //initial
     
     // BTNU is used to cycle between the modes, and choose which wires the input buttons will map to
-    // Make sure any button presses in mode x does not effect the state of mode y or mode z
     // mode 0 = 12hr clock, mode 1 = 24hr clock, mode 2 = timer, mode 3 = stopwatch
     always @(posedge clk_khz) begin
         if (debBTNU == 1) begin
             case (mode)
-                2'b00: begin
-                    mode <= 2'b01;
-                end
-                2'b01: begin
-                    mode <= 2'b10;
-                end
-                2'b10: begin
-                    mode <= 2'b00;
-                end
+                2'b00: mode <= 2'b01;
+                2'b01: mode <= 2'b10;
+                2'b10: mode <= 2'b00;
                 default: mode <= 2'b00;
             endcase
         end
     end //always
     
+    // On every change, update the input ports of the current mode
     always @(*) begin
         case (mode) 
             2'b00: begin
@@ -107,6 +102,7 @@ module top(
                 hrL <= debBTNL;
                 hrR <= debBTNR;
                 hrC <= debBTNC;
+                editDigit <= clockEdit;
                 top_square_counter <= clockCounter;
             end
             2'b01: begin
@@ -120,6 +116,7 @@ module top(
                 tEdit <= debBTND;
                 tLeft <= debBTNL;
                 tRight <= debBTNR;
+                editDigit <= timerEdit;
                 top_square_counter <= timerCounter;
             end
         endcase
