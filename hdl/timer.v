@@ -14,7 +14,7 @@ module timer(clk, bC, bL, bD, bR, out_o, curr_digit, edit, done);
         has_input <= 0;
     end
   
-    always @(posedge clk_i) begin
+    always @(posedge clk) begin
         if(!edit_mode) begin
             if(bL) edit_mode <= 1;
             else if(bD) begin
