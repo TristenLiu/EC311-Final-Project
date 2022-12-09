@@ -9,7 +9,7 @@ module timer(clk, bC, bL, bD, bR, out_o, curr_digit, edit, done);
 
     initial begin
         out_o <= 0;
-        edit_mode <= 0;
+        edit_mode <= 1;
         curr_digit <= 0;
         has_input <= 0;
     end
