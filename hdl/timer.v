@@ -5,11 +5,13 @@ module timer(clk, bC, bL, bD, bR, out_o, curr_digit, edit, done);
     output reg [2:0]curr_digit;
     output reg edit, done;
     reg edit_mode;
+    reg has_input;
 
     initial begin
         out_o <= 0;
         edit_mode <= 0;
         curr_digit <= 0;
+        has_input <= 0;
     end
   
     always @(posedge clk_i) begin
@@ -20,7 +22,7 @@ module timer(clk, bC, bL, bD, bR, out_o, curr_digit, edit, done);
                 edit_mode <= 1;
             end
             
-            else if(out_o == 0) done <= 1;
+            else if(out_o == 0  && has_input) done <= 1;
             
 
             else begin
@@ -65,19 +67,19 @@ module timer(clk, bC, bL, bD, bR, out_o, curr_digit, edit, done);
             end //end if
             
         else if(edit_mode) begin //Edit mode ( ; _ ;) Only gonna give control down to the minute (down to the second for the timer!)
-			clock_o[11:0] <= 0;
+			out_o[11:0] <= 0;
 			done <= 0;
 			
 			if(bL) begin 
-				if(currDigit == 0) begin currDigit <= 0; edit_mode <= 0; end
-				else currDigit <= currDigit - 3'b001;
+				if(curr_digit == 0) begin curr_digit <= 0; edit_mode <= 0; end
+				else curr_digit <= curr_digit - 3'b001;
 			end
 			else if(bR) begin
-				if(currDigit == 3'b101) begin currDigit <= 0; edit_mode <= 0; end
-				else currDigit <= currDigit + 3'b001;
+				if(curr_digit == 3'b101) begin curr_digit <= 0; edit_mode <= 0; end
+				else curr_digit <= curr_digit + 3'b001;
 			end
 			else begin 
-				case(currDigit)
+				case(curr_digit)
 					3'b000:	begin   //HrR
 						if(bC) begin
 							if(out_o[35:32] == 4'b1001) out_o[35:32] <= 0;
