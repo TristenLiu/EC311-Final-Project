@@ -78,7 +78,8 @@ module timer(clk, bC, bL, bD, bR, out_o, curr_digit, edit, done);
 				if(curr_digit == 3'b101) begin curr_digit <= 0; edit_mode <= 0; end
 				else curr_digit <= curr_digit + 3'b001;
 			end
-			else begin 
+			else begin
+			     has_input <= 1; 
 				case(curr_digit)
 					3'b000:	begin   //HrR
 						if(bC) begin
