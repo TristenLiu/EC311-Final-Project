@@ -8,7 +8,8 @@ module top_square(
     input wire clockfmt,
     input wire am_pm,
     input wire editmode,
-    input wire [1:0] editDigit,
+    input wire [2:0] editDigit,
+    input wire timer_done,
     output wire VGA_HS_O,       // horizontal sync output
     output wire VGA_VS_O,       // vertical sync output
     output wire [3:0] VGA_R,    // 4-bit VGA red output
@@ -48,7 +49,7 @@ module top_square(
 	
     //Registers for entities
 	reg green,red, blue;
-	reg [10:0] sumred, sumwhite;
+	reg [10:0] sumred, sumwhite, sumgreen;
 	
 	// Creating Regions on the VGA Display represented as wires (640x480)
 	
@@ -266,24 +267,19 @@ module top_square(
  assign VGA_G[3] = green;
  assign VGA_B[3] = blue;
  
- reg editing = 0;
- reg[27:0] counter = 28'd0;
- reg editblinker;
- parameter blinker = 28'd100000000;
   
   always @ (*)
   begin 
 	//At start of every input change reset the screen and grid. Check inputs and update grid accordingly
 	
 	//Green = 0 means that there will be no values of x/y on the VGA that will display green
+    red = 0;
     green = 0;
     blue = 0;
     sumred = 0;
     sumwhite = 0;
-	//This statement makes it so that within SQ1, a 3x3 grid of squares appears, with the middle square blacked out
-    red = 0;
-    //fullscreen - leftdigit_blank[0] - leftdigit_blank[1] - leftdigit_blank[2]
-    //             - leftdigit_blank[3] - leftdigit_blank[4] - leftdigit_blank[5] - leftdigit_blank[6] - leftdigit_blank[7] - SQMid;
+    sumgreen = 0;
+    
     case(random_num[3:0])
         4'b0000: sumred = sumred + ms1[0] + ms1[1] + ms1[2] + ms1[3] + ms1[4] + ms1[5];
         4'b0001: sumred = sumred + ms1[1] + ms1[2];
@@ -428,20 +424,41 @@ module top_square(
         end
     endcase
     
+    // Check if the timer is done
+    if (timer_done) begin
+        sumgreen = sumgreen + t5[0] + t5[1];
+        sumgreen = sumgreen + t4[0] + t4[1] + t4[2];
+        sumgreen = sumgreen + t3[0] + t3[1] + t3[2] + t3[3] + t3[4] + t3[5];
+        sumgreen = sumgreen + t2[0] + t2[1] + t2[2] + t2[3] + t2[4];
+        sumgreen = sumgreen + t1[0] + t1[1] + t1[2] + t1[3] + t1[4] + t1[5];
+    end
+    
+    // if the mode is clock / timer and we are editing, indicate the editing digit
+    if (editmode) begin
+        if (mode == 2'b00) begin
+            case (editDigit[1:0])
+                2'b00: sumwhite = ((x > 52 ) & (x < 180) & (y > 268) & (y < 271)) ? 1 : 0; 
+                2'b01: sumwhite = ((x > 218) & (x < 277) & (y > 268) & (y < 271)) ? 1 : 0; 
+                2'b10: sumwhite = ((x > 287) & (x < 346) & (y > 268) & (y < 271)) ? 1 : 0; 
+                default: sumwhite = 0;
+            endcase
+        end else if (mode == 2'b10) begin
+            case (editDigit[2:0])
+                3'b000: sumwhite = ((x > 52 ) & (x < 111) & (y > 268) & (y < 271)) ? 1 : 0; 
+                3'b001: sumwhite = ((x > 121) & (x < 180) & (y > 268) & (y < 271)) ? 1 : 0; 
+                3'b010: sumwhite = ((x > 218) & (x < 277) & (y > 268) & (y < 271)) ? 1 : 0;
+                3'b011: sumwhite = ((x > 287) & (x < 346) & (y > 268) & (y < 271)) ? 1 : 0;
+                3'b100: sumwhite = ((x > 384) & (x < 443) & (y > 268) & (y < 271)) ? 1 : 0;
+                3'b101: sumwhite = ((x > 453) & (x < 512) & (y > 268) & (y < 271)) ? 1 : 0;
+            endcase
+        end
+    end
+    
     // always display the colons
     sumred = sumred + c2[1] + c2[0] + c1[1] + c1[0];
     
-    // if the mode is clock / timer and we are editing, indicate the editing digit
-    if (editmode && (mode == 2'b00 || mode == 2'b10)) begin
-        case (editDigit[1:0])
-            2'b00: sumwhite = ((x > 52 ) & (x < 180) & (y > 268) & (y < 271)) ? 1 : 0; 
-            2'b01: sumwhite = ((x > 218) & (x < 277) & (y > 268) & (y < 271)) ? 1 : 0; 
-            2'b10: sumwhite = ((x > 287) & (x < 346) & (y > 268) & (y < 271)) ? 1 : 0; 
-            default: sumwhite = 0;
-        endcase
-    end
-    
     if (sumred > 0) red = 1;
+    if (sumgreen > 0) green = 1;
     if (sumwhite > 0) begin 
         green = 1;
         red = 1;

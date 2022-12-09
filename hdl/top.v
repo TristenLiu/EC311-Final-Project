@@ -18,13 +18,14 @@ module top(
     );
     reg [35:0] top_square_counter;
     wire [35:0] clockCounter, swCounter, timerCounter;
-    reg [1:0] editDigit;
-    wire [1:0] clockEdit, timerEdit;
+    reg [2:0] editDigit;
+    wire [1:0] clockDigit;
+    wire [2:0] timerDigit;
     reg [1:0] mode;
-    wire am_pm, format, edit;
+    wire am_pm, format, clock_edit, timer_edit, timer_done;
     reg [9:0] hit = 0;
     reg hrD, hrL, hrR, hrC, edit_in;
-    reg tEdit, tLeft, tRight, tBTNC, tReset;        //tBTNC = start or increment, depending on toggle mode
+    reg tL, tC, tR, tD;        //tBTNC = start or increment, depending on toggle mode
     reg swStart, swStop, swReset;
     wire clk_khz;
     wire debBTNU, debBTNL, debBTNC, debBTNR, debBTND;
@@ -37,6 +38,7 @@ module top(
                   .am_pm(am_pm),
                   .editmode(edit_in),
                   .editDigit(editDigit),
+                  .timer_done(timer_done),
                   .VGA_HS_O(VGA_HS), 
                   .VGA_VS_O(VGA_VS), 
                   .VGA_R(VGA_R), 
@@ -51,8 +53,8 @@ module top(
                      .bC(hrC), 
                      .fmt(format), 
                      .ampm(am_pm), 
-                     .edit(edit),
-                     .currDigit(clockEdit), 
+                     .edit(clock_edit),
+                     .currDigit(clockDigit), 
                      .outReg(clockCounter));
     
     stopwatch sw(.clk_i(clk_i), 
@@ -60,6 +62,16 @@ module top(
                  .start(swStart), 
                  .stop(swStop), 
                  .out_o(swCounter));
+                 
+    timer timer(.clk(clk_khz), 
+                .bC(tC), 
+                .bL(tL), 
+                .bD(tD), 
+                .bR(tR), 
+                .out_o(timerCounter), 
+                .curr_digit(timerDigit), 
+                .edit(timer_edit), 
+                .done(timer_done));
     
     debouncer debU(.clk_i(clk_khz), .resetn_btn_i(reset_n), .increment_counter_btn_i(BTNU), .btn_o(debBTNU));
     debouncer debL(.clk_i(clk_khz), .resetn_btn_i(reset_n), .increment_counter_btn_i(BTNL), .btn_o(debBTNL));
@@ -73,12 +85,6 @@ module top(
     // start at hour clock mode
     initial begin
         mode <= 2'b00;
-        hrD <= debBTND;
-        hrL <= debBTNL;
-        hrR <= debBTNR;
-        hrC <= debBTNC;
-        edit_in <= edit;
-        top_square_counter <= clockCounter;
     end //initial
     
     // BTNU is used to cycle between the modes, and choose which wires the input buttons will map to
@@ -102,7 +108,8 @@ module top(
                 hrL <= debBTNL;
                 hrR <= debBTNR;
                 hrC <= debBTNC;
-                editDigit <= clockEdit;
+                edit_in <= clock_edit;
+                editDigit <= clockDigit;
                 top_square_counter <= clockCounter;
             end
             2'b01: begin
@@ -112,15 +119,15 @@ module top(
                 top_square_counter <= swCounter;
             end
             2'b10: begin
-                tBTNC <= debBTNC;
-                tEdit <= debBTND;
-                tLeft <= debBTNL;
-                tRight <= debBTNR;
-                editDigit <= timerEdit;
+                tC <= debBTNC;
+                tD <= debBTND;
+                tL <= debBTNL;
+                tR <= debBTNR;
+                edit_in <= timer_edit;
+                editDigit <= timerDigit;
                 top_square_counter <= timerCounter;
             end
         endcase
-        edit_in <= edit;
     end //always
     
     
