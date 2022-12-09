@@ -1,24 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 12/02/2022 12:46:30 PM
-// Design Name: 
-// Module Name: stopwatch
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module stopwatch(clk_i, resetn, start, stop, out_o);
 
@@ -26,7 +6,8 @@ module stopwatch(clk_i, resetn, start, stop, out_o);
     output reg [35:0]out_o;
     
     reg button_press;
-    wire start_o, stop_o;
+//    wire start_o, stop_o
+    wire clk_1ms_out;
     
     initial begin
         out_o = 0;
@@ -34,18 +15,18 @@ module stopwatch(clk_i, resetn, start, stop, out_o);
     end
     
     clock_divider msClk(clk_i, clk_1ms_out);
-    debouncer_dff start_i(clk_i, resetn, start, start_o);
-    debouncer_dff stop_i(clk_i, resetn, stop, stop_o);
+//    debouncer_dff start_i(clk_i, resetn, start, start_o);
+//    debouncer_dff stop_i(clk_i, resetn, stop, stop_o);
     
     always @ (posedge clk_i) begin // check for which button is pressed
-        if(start_o)
+        if(start)
             button_press <= 1'b1;
-        else if(stop_o)
+        else if(stop)
             button_press <= 1'b0;
         end
     
-    always @(posedge clk_i or negedge resetn) begin
-        if(!resetn) begin
+    always @(posedge clk_i) begin
+        if(resetn) begin
             out_o <= 0;
         end else if(clk_1ms_out && button_press == 1'b1) begin
         // The maximum for each 4bit segment is 9 = 1001. If 1001, then increment the next segment

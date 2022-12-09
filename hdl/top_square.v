@@ -1,28 +1,14 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 11/21/2020 12:29:25 PM
-// Design Name: 
-// Module Name: top_square
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////
+
 module top_square(
     input wire CLK,             // board clock: 100 MHz on Arty/Basys3/Nexys
     input wire RST_BTN,
     input wire [35:0] random_num,
-    input wire [9:0] hit,         
+    input wire [1:0] mode,
+    input wire clockfmt,
+    input wire am_pm,
+    input wire editmode,
+    input wire editDigit,
     output wire VGA_HS_O,       // horizontal sync output
     output wire VGA_VS_O,       // vertical sync output
     output wire [3:0] VGA_R,    // 4-bit VGA red output
@@ -56,7 +42,8 @@ module top_square(
     wire fullscreen;
     wire [8:0] leftdigit_blank;
     wire [7:0] leftdigit_ss;
-    wire [12:0] h2, h1, m2, m1, s2, s1, ms3, ms2, ms1;
+    wire [6:0] h2, h1, m2, m1, s2, s1, ms3, ms2, ms1;
+    wire [6:0] PA, M, clk5, clk4, clk3, clk2, clk1, sw9, sw8, sw7, sw6, sw5, sw4, sw3, sw2, sw1, t5, t4, t3, t2, t1;
     wire [1:0] c2, c1;
 	
     //Registers for entities
@@ -65,8 +52,8 @@ module top_square(
 	
 	// Creating Regions on the VGA Display represented as wires (640x480)
 	
-	// SQ1 is a large Square, and SQ2-9, along with SQ Mid are areas within SQ1
-    assign fullscreen = ((x > 52 ) & (x < 573) & (y > 179) & (y < 264)) ? 1 : 0;
+	// fullscreen encompasses the full area of action
+    assign fullscreen = ((x > 52 ) & (x < 573) & (y > 179) & (y < 311)) ? 1 : 0;
     assign h2[0] = ((x > 52) & (x < 111) & (y > 179) & (y < 194)) ? 1 : 0;
     assign h2[1] = ((x > 95) & (x < 111) & (y > 179) & (y < 229)) ? 1 : 0;
     assign h2[2] = ((x > 95) & (x < 111) & (y > 214) & (y < 262)) ? 1 : 0;
@@ -114,6 +101,156 @@ module top_square(
     assign s1[4] = ((x > 401 + 52) & (x < 401 + 69) & (y > 214) & (y < 262)) ? 1 : 0;
     assign s1[5] = ((x > 401 + 52) & (x < 401 + 69) & (y > 179) & (y < 229)) ? 1 : 0;
     assign s1[6] = ((x > 401 + 52) & (x < 401 + 111) & (y > 214) & (y < 229)) ? 1 : 0;
+
+    assign ms3[0] = ((x > 518) & (x < 535) & (y > 240) & (y < 245)) ? 1 : 0 ;
+    assign ms3[1] = ((x > 530) & (x < 535) & (y > 240) & (y < 254)) ? 1 : 0 ;
+    assign ms3[2] = ((x > 530) & (x < 535) & (y > 250) & (y < 264)) ? 1 : 0 ;
+    assign ms3[3] = ((x > 518) & (x < 535) & (y > 259) & (y < 264)) ? 1 : 0 ;
+    assign ms3[4] = ((x > 518) & (x < 523) & (y > 250) & (y < 264)) ? 1 : 0 ;
+    assign ms3[5] = ((x > 518) & (x < 523) & (y > 240) & (y < 254)) ? 1 : 0 ;
+    assign ms3[6] = ((x > 518) & (x < 535) & (y > 250) & (y < 254)) ? 1 : 0 ;
+    
+    assign ms2[0] = ((x > 19 + 518) & (x < 19 + 535) & (y > 240) & (y < 245)) ? 1 : 0 ;
+    assign ms2[1] = ((x > 19 + 530) & (x < 19 + 535) & (y > 240) & (y < 254)) ? 1 : 0 ;
+    assign ms2[2] = ((x > 19 + 530) & (x < 19 + 535) & (y > 250) & (y < 264)) ? 1 : 0 ;
+    assign ms2[3] = ((x > 19 + 518) & (x < 19 + 535) & (y > 259) & (y < 264)) ? 1 : 0 ;
+    assign ms2[4] = ((x > 19 + 518) & (x < 19 + 523) & (y > 250) & (y < 264)) ? 1 : 0 ;
+    assign ms2[5] = ((x > 19 + 518) & (x < 19 + 523) & (y > 240) & (y < 254)) ? 1 : 0 ;
+    assign ms2[6] = ((x > 19 + 518) & (x < 19 + 535) & (y > 250) & (y < 254)) ? 1 : 0 ;
+    
+    assign ms1[0] = ((x > 38 + 518) & (x < 38 + 535) & (y > 240) & (y < 245)) ? 1 : 0 ;  
+    assign ms1[1] = ((x > 38 + 530) & (x < 38 + 535) & (y > 240) & (y < 254)) ? 1 : 0 ;
+    assign ms1[2] = ((x > 38 + 530) & (x < 38 + 535) & (y > 250) & (y < 264)) ? 1 : 0 ;
+    assign ms1[3] = ((x > 38 + 518) & (x < 38 + 535) & (y > 259) & (y < 264)) ? 1 : 0 ;
+    assign ms1[4] = ((x > 38 + 518) & (x < 38 + 523) & (y > 250) & (y < 264)) ? 1 : 0 ;
+    assign ms1[5] = ((x > 38 + 518) & (x < 38 + 523) & (y > 240) & (y < 254)) ? 1 : 0 ;
+    assign ms1[6] = ((x > 38 + 518) & (x < 38 + 535) & (y > 250) & (y < 254)) ? 1 : 0 ;
+
+    assign PA[0] = ((x > 19 + 518) & (x < 19 + 535) & (y > 240 - 61) & (y < 245 - 61)) ? 1 : 0 ;
+    assign PA[1] = ((x > 19 + 530) & (x < 19 + 535) & (y > 240 - 61) & (y < 254 - 61)) ? 1 : 0 ;
+    assign PA[2] = ((x > 19 + 530) & (x < 19 + 535) & (y > 250 - 61) & (y < 264 - 61)) ? 1 : 0 ;
+    assign PA[3] = ((x > 19 + 518) & (x < 19 + 535) & (y > 259 - 61) & (y < 264 - 61)) ? 1 : 0 ;
+    assign PA[4] = ((x > 19 + 518) & (x < 19 + 523) & (y > 250 - 61) & (y < 264 - 61)) ? 1 : 0 ;
+    assign PA[5] = ((x > 19 + 518) & (x < 19 + 523) & (y > 240 - 61) & (y < 254 - 61)) ? 1 : 0 ;
+    assign PA[6] = ((x > 19 + 518) & (x < 19 + 535) & (y > 250 - 61) & (y < 254 - 61)) ? 1 : 0 ;
+    
+    assign M[0] = ((x > 38 + 518) & (x < 38 + 535) & (y > 250 - 61) & (y < 254 - 61)) ? 1 : 0 ; 
+    assign M[1] = ((x > 38 + 530) & (x < 38 + 535) & (y > 250 - 61) & (y < 264 - 61)) ? 1 : 0 ;
+    assign M[2] = ((x > 562)      & (x < 567)      & (y > 250 - 61) & (y < 264 - 61)) ? 1 : 0 ;
+    assign M[3] = ((x > 38 + 518) & (x < 38 + 523) & (y > 250 - 61) & (y < 264 - 61)) ? 1 : 0 ;
+
+    // base formula
+    // assign d[0] = ((x > 52 ) & (x < 69 ) & (y > 287) & (y < 290)) ? 1 : 0 ;
+    // assign d[1] = ((x > 64 ) & (x < 69 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    // assign d[2] = ((x > 64 ) & (x < 69 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    // assign d[3] = ((x > 52 ) & (x < 69 ) & (y > 306) & (y < 311)) ? 1 : 0 ;
+    // assign d[4] = ((x > 52 ) & (x < 57 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    // assign d[5] = ((x > 52 ) & (x < 57 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    // assign d[6] = ((x > 52 ) & (x < 69 ) & (y > 297) & (y < 301)) ? 1 : 0 ;
+
+    assign clk5[0] = ((x > 52 ) & (x < 69 ) & (y > 287) & (y < 292)) ? 1 : 0 ;
+    assign clk5[1] = ((x > 52 ) & (x < 69 ) & (y > 306) & (y < 311)) ? 1 : 0 ;
+    assign clk5[2] = ((x > 52 ) & (x < 57 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign clk5[3] = ((x > 52 ) & (x < 57 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    
+    assign clk4[0] = ((x > 19 + 52 ) & (x < 19 + 69 ) & (y > 306) & (y < 311)) ? 1 : 0 ;
+    assign clk4[1] = ((x > 19 + 52 ) & (x < 19 + 57 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign clk4[2] = ((x > 19 + 52 ) & (x < 19 + 57 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    
+    assign clk3[0] = ((x > 38 + 52 ) & (x < 38 + 69 ) & (y > 287) & (y < 292)) ? 1 : 0 ;
+    assign clk3[1] = ((x > 38 + 64 ) & (x < 38 + 69 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    assign clk3[2] = ((x > 38 + 64 ) & (x < 38 + 69 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign clk3[3] = ((x > 38 + 52 ) & (x < 38 + 69 ) & (y > 306) & (y < 311)) ? 1 : 0 ;
+    assign clk3[4] = ((x > 38 + 52 ) & (x < 38 + 57 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign clk3[5] = ((x > 38 + 52 ) & (x < 38 + 57 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    
+    assign clk2[0] = ((x > 57 + 52 ) & (x < 57 + 69 ) & (y > 287) & (y < 292)) ? 1 : 0 ;
+    assign clk2[1] = ((x > 57 + 52 ) & (x < 57 + 69 ) & (y > 306) & (y < 311)) ? 1 : 0 ;
+    assign clk2[2] = ((x > 57 + 52 ) & (x < 57 + 57 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign clk2[3] = ((x > 57 + 52 ) & (x < 57 + 57 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    
+    assign clk1[0] = ((x > 76 + 64 ) & (x < 76 + 69 ) & (y > 287) & (y < 298)) ? 1 : 0 ;
+    assign clk1[1] = ((x > 76 + 64 ) & (x < 76 + 69 ) & (y > 300) & (y < 311)) ? 1 : 0 ;
+    assign clk1[2] = ((x > 76 + 52 ) & (x < 76 + 57 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign clk1[3] = ((x > 76 + 52 ) & (x < 76 + 57 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    assign clk1[4] = ((x > 76 + 52 ) & (x < 141)      & (y > 297) & (y < 301)) ? 1 : 0 ;
+    
+    assign sw9[0] = ((x > 146 + 52 ) & (x < 146 + 69 ) & (y > 287) & (y < 292)) ? 1 : 0 ;
+    assign sw9[1] = ((x > 146 + 64 ) & (x < 146 + 69 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign sw9[2] = ((x > 146 + 52 ) & (x < 146 + 69 ) & (y > 306) & (y < 311)) ? 1 : 0 ;
+    assign sw9[3] = ((x > 146 + 52 ) & (x < 146 + 57 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    assign sw9[4] = ((x > 146 + 52 ) & (x < 146 + 69 ) & (y > 297) & (y < 301)) ? 1 : 0 ;
+    
+    assign sw8[0] = ((x > 165 + 52 ) & (x < 165 + 69 ) & (y > 287) & (y < 292)) ? 1 : 0 ;
+    assign sw8[1] = ((x > 223)       & (x < 228)       & (y > 287) & (y < 311)) ? 1 : 0 ;
+    
+    assign sw7[0] = ((x > 184 + 52 ) & (x < 184 + 69 ) & (y > 287) & (y < 292)) ? 1 : 0 ;
+    assign sw7[1] = ((x > 184 + 64 ) & (x < 184 + 69 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    assign sw7[2] = ((x > 184 + 64 ) & (x < 184 + 69 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign sw7[3] = ((x > 184 + 52 ) & (x < 184 + 69 ) & (y > 306) & (y < 311)) ? 1 : 0 ;
+    assign sw7[4] = ((x > 184 + 52 ) & (x < 184 + 57 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign sw7[5] = ((x > 184 + 52 ) & (x < 184 + 57 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    
+    assign sw6[0] = ((x > 203 + 52 ) & (x < 203 + 69 ) & (y > 287) & (y < 292)) ? 1 : 0 ;
+    assign sw6[1] = ((x > 203 + 64 ) & (x < 203 + 69 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    assign sw6[2] = ((x > 203 + 52 ) & (x < 203 + 57 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign sw6[3] = ((x > 203 + 52 ) & (x < 203 + 57 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    assign sw6[4] = ((x > 203 + 52 ) & (x < 203 + 69 ) & (y > 297) & (y < 301)) ? 1 : 0 ;
+    
+    assign sw5[0] = ((x > 280)       & (x < 285)       & (y > 296) & (y < 311)) ? 1 : 0 ;
+    assign sw5[1] = ((x > 222 + 64 ) & (x < 222 + 69 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    assign sw5[2] = ((x > 222 + 64 ) & (x < 222 + 69 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign sw5[3] = ((x > 222 + 52 ) & (x < 222 + 69 ) & (y > 306) & (y < 311)) ? 1 : 0 ;
+    assign sw5[4] = ((x > 222 + 52 ) & (x < 222 + 57 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign sw5[5] = ((x > 222 + 52 ) & (x < 222 + 57 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    
+    assign sw4[0] = ((x > 241 + 52 ) & (x < 241 + 69 ) & (y > 287) & (y < 292)) ? 1 : 0 ;
+    assign sw4[1] = ((x > 241 + 64 ) & (x < 241 + 69 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    assign sw4[2] = ((x > 241 + 64 ) & (x < 241 + 69 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign sw4[3] = ((x > 241 + 52 ) & (x < 241 + 57 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign sw4[4] = ((x > 241 + 52 ) & (x < 241 + 57 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    assign sw4[5] = ((x > 241 + 52 ) & (x < 241 + 69 ) & (y > 297) & (y < 301)) ? 1 : 0 ;
+    
+    assign sw3[0] = ((x > 260 + 52 ) & (x < 260 + 69 ) & (y > 287) & (y < 292)) ? 1 : 0 ;
+    assign sw3[1] = ((x > 318)       & (x < 323)       & (y > 287) & (y < 311)) ? 1 : 0 ;
+    
+    assign sw2[0] = ((x > 279 + 52 ) & (x < 279 + 69 ) & (y > 287) & (y < 292)) ? 1 : 0 ;
+    assign sw2[1] = ((x > 279 + 52 ) & (x < 279 + 69 ) & (y > 306) & (y < 311)) ? 1 : 0 ;
+    assign sw2[2] = ((x > 279 + 52 ) & (x < 279 + 57 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign sw2[3] = ((x > 279 + 52 ) & (x < 279 + 57 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    
+    assign sw1[0] = ((x > 298 + 64 ) & (x < 298 + 69 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    assign sw1[1] = ((x > 298 + 64 ) & (x < 298 + 69 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign sw1[2] = ((x > 298 + 52 ) & (x < 298 + 57 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign sw1[3] = ((x > 298 + 52 ) & (x < 298 + 57 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    assign sw1[4] = ((x > 298 + 52 ) & (x < 298 + 69 ) & (y > 297) & (y < 301)) ? 1 : 0 ;
+    
+    assign t5[0] = ((x > 367 + 52 ) & (x < 367 + 69 ) & (y > 287) & (y < 292)) ? 1 : 0 ;
+    assign t5[1] = ((x > 425)       & (x < 430)       & (y > 287) & (y < 311)) ? 1 : 0 ;
+    
+    assign t4[0] = ((x > 386 + 52 ) & (x < 386 + 69 ) & (y > 287) & (y < 292)) ? 1 : 0 ;
+    assign t4[1] = ((x > 386 + 52 ) & (x < 386 + 69 ) & (y > 306) & (y < 311)) ? 1 : 0 ;
+    assign t4[2] = ((x > 444)       & (x < 449)       & (y > 291) & (y < 307)) ? 1 : 0 ;
+    
+    assign t3[0] = ((x > 405 + 52 ) & (x < 405 + 69 ) & (y > 287) & (y < 292)) ? 1 : 0 ;
+    assign t3[1] = ((x > 405 + 64 ) & (x < 405 + 69 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    assign t3[2] = ((x > 405 + 64 ) & (x < 405 + 69 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign t3[3] = ((x > 463)       & (x < 468)       & (y > 291) & (y < 301)) ? 1 : 0 ;
+    assign t3[4] = ((x > 405 + 52 ) & (x < 405 + 57 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign t3[5] = ((x > 405 + 52 ) & (x < 405 + 57 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    
+    assign t2[0] = ((x > 424 + 52 ) & (x < 424 + 69 ) & (y > 287) & (y < 292)) ? 1 : 0 ;
+    assign t2[1] = ((x > 424 + 52 ) & (x < 424 + 69 ) & (y > 306) & (y < 311)) ? 1 : 0 ;
+    assign t2[2] = ((x > 424 + 52 ) & (x < 424 + 57 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign t2[3] = ((x > 424 + 52 ) & (x < 424 + 57 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    assign t2[4] = ((x > 424 + 52 ) & (x < 424 + 69 ) & (y > 297) & (y < 301)) ? 1 : 0 ;
+    
+    assign t1[0] = ((x > 443 + 52 ) & (x < 508)       & (y > 287) & (y < 292)) ? 1 : 0 ;
+    assign t1[1] = ((x > 443 + 64 ) & (x < 443 + 69 ) & (y > 291) & (y < 298)) ? 1 : 0 ;
+    assign t1[2] = ((x > 443 + 64 ) & (x < 443 + 69 ) & (y > 300) & (y < 311)) ? 1 : 0 ;
+    assign t1[3] = ((x > 443 + 52 ) & (x < 443 + 57 ) & (y > 297) & (y < 311)) ? 1 : 0 ;
+    assign t1[4] = ((x > 443 + 52 ) & (x < 443 + 57 ) & (y > 287) & (y < 301)) ? 1 : 0 ;
+    assign t1[5] = ((x > 443 + 52 ) & (x < 508)       & (y > 297) & (y < 301)) ? 1 : 0 ;
     
     assign c2[0] = ((x > 190) & (x < 207) & (y > 209) & (y < 225)) ? 1 : 0;
     assign c2[1] = ((x > 190) & (x < 207) & (y > 247) & (y < 264)) ? 1 : 0;
@@ -121,42 +258,17 @@ module top_square(
     assign c1[0] = ((x > 166 + 190) & (x < 166 + 207) & (y > 209) & (y < 225)) ? 1 : 0;
     assign c1[1] = ((x > 166 + 190) & (x < 166 + 207) & (y > 247) & (y < 264)) ? 1 : 0;
     
-//    assign leftdigit_blank[0] = ((x > 40 ) & (y > 100) & (x < 60 ) & (y < 120)) ? 1 : 0; 
-//    assign leftdigit_blank[1] = ((x > 40 ) & (y > 180) & (x < 60 ) & (y < 200)) ? 1 : 0; 
-//    assign leftdigit_blank[2] = ((x > 40 ) & (y > 260) & (x < 60 ) & (y < 280)) ? 1 : 0; // Red Square
-//    assign leftdigit_blank[3] = ((x > 60 ) & (y > 120) & (x < 120) & (y < 180)) ? 1 : 0; // Red Square
-//    assign leftdigit_blank[4] = ((x > 60 ) & (y > 200) & (x < 120) & (y < 260)) ? 1 : 0; // Red Square
-//    assign leftdigit_blank[5] = ((x > 120) & (y > 100) & (x < 140) & (y < 120)) ? 1 : 0; // Red Square
-//    assign leftdigit_blank[6] = ((x > 120) & (y > 180) & (x < 140) & (y < 200)) ? 1 : 0; // Red Square
-//    assign leftdigit_blank[7] = ((x > 120) & (y > 260) & (x < 140) & (y < 280)) ? 1 : 0; // Red Square
-//    assign SQMid = ((x > 140) & (y > 100) & (x < 600) & (y < 280)) ? 1 : 0; // Center Square
-    
-//	// SQ10-17 are also areas within SQ1
-//    assign leftdigit_ss[0] = ((x > 60 ) & (y > 100) & (x < 120) & (y < 120)) ? 1 : 0; // Green Square              
-//    assign leftdigit_ss[1] = ((x > 120) & (y > 120) & (x < 140) & (y < 180)) ? 1 : 0; // Green Square
-//    assign leftdigit_ss[2] = ((x > 120) & (y > 200) & (x < 140) & (y < 260)) ? 1 : 0; // Green Square
-//    assign leftdigit_ss[3] = ((x > 60 ) & (y > 260) & (x < 120) & (y < 280)) ? 1 : 0; // Green Square
-//    assign leftdigit_ss[4] = ((x > 40 ) & (y > 200) & (x < 60 ) & (y < 260)) ? 1 : 0; // Green Square
-//    assign leftdigit_ss[5] = ((x > 40 ) & (y > 120) & (x < 60 ) & (y < 180)) ? 1 : 0; // Green Square
-//    assign leftdigit_ss[6] = ((x > 60 ) & (y > 180) & (x < 120) & (y < 200)) ? 1 : 0; // Green Square
-//    assign SQ17 = ((x > 459) & (y > 340) & (x < 540) & (y < 420)) ? 1 : 0; // Green Square
-//    // SQ10hit-17hit are the same areas as SQ10-17
-// assign SQ10hit = ((x > 60 ) & (y > 100) & (x < 120) & (y < 120)) ? 1 : 0; // Hit Square
-// assign SQ11hit = ((x > 120) & (y > 120) & (x < 140) & (y < 180)) ? 1 : 0; // Hit Square
-// assign SQ12hit = ((x > 120) & (y > 200) & (x < 140) & (y < 260)) ? 1 : 0; // Hit Square
-// assign SQ13hit = ((x > 60 ) & (y > 260) & (x < 120) & (y < 280)) ? 1 : 0; // Hit Square
-// assign SQ14hit = ((x > 40 ) & (y > 200) & (x < 60 ) & (y < 260)) ? 1 : 0; // Hit Square
-// assign SQ15hit = ((x > 40 ) & (y > 120) & (x < 60 ) & (y < 180)) ? 1 : 0; // Hit Square
-// assign SQ16hit = ((x > 60 ) & (y > 180) & (x < 120) & (y < 200)) ? 1 : 0; // Hit Square
-// assign SQ17hit = ((x > 459) & (y > 340) & (x < 540) & (y < 420)) ? 1 : 0; // Hit Square
 
 
-
-    
  // Assign the registers to the VGA 3rd output. This will display strong red on the Screen when 
  // grid = 1, and strong green on the screen when green = 1;
  assign VGA_R[3] = grid;
  assign VGA_G[3] = green;
+ 
+ reg editing = 0;
+ reg[27:0] counter = 28'd0;
+ reg editblinker;
+ parameter blinker = 28'd100000000;
   
   always @ (*)
   begin 
@@ -170,6 +282,42 @@ module top_square(
     //fullscreen - leftdigit_blank[0] - leftdigit_blank[1] - leftdigit_blank[2]
     //             - leftdigit_blank[3] - leftdigit_blank[4] - leftdigit_blank[5] - leftdigit_blank[6] - leftdigit_blank[7] - SQMid;
     case(random_num[3:0])
+        4'b0000: sum = sum + ms1[0] + ms1[1] + ms1[2] + ms1[3] + ms1[4] + ms1[5];
+        4'b0001: sum = sum + ms1[1] + ms1[2];
+        4'b0010: sum = sum + ms1[0] + ms1[1] + ms1[3] + ms1[4] + ms1[6];
+        4'b0011: sum = sum + ms1[0] + ms1[1] + ms1[2] + ms1[3] + ms1[6];
+        4'b0100: sum = sum + ms1[1] + ms1[2] + ms1[5] + ms1[6];
+        4'b0101: sum = sum + ms1[0] + ms1[2] + ms1[3] + ms1[5] + ms1[6];
+        4'b0110: sum = sum + ms1[0] + ms1[2] + ms1[3] + ms1[4] + ms1[5] + ms1[6];
+        4'b0111: sum = sum + ms1[0] + ms1[1] + ms1[2];
+        4'b1000: sum = sum + ms1[0] + ms1[1] + ms1[2] + ms1[3] + ms1[4] + ms1[5] + ms1[6];
+        4'b1001: sum = sum + ms1[0] + ms1[1] + ms1[2] + ms1[5] + ms1[6];
+    endcase
+    case(random_num[7:4])
+        4'b0000: sum = sum + ms2[0] + ms2[1] + ms2[2] + ms2[3] + ms2[4] + ms2[5];
+        4'b0001: sum = sum + ms2[1] + ms2[2];
+        4'b0010: sum = sum + ms2[0] + ms2[1] + ms2[3] + ms2[4] + ms2[6];
+        4'b0011: sum = sum + ms2[0] + ms2[1] + ms2[2] + ms2[3] + ms2[6];
+        4'b0100: sum = sum + ms2[1] + ms2[2] + ms2[5] + ms2[6];
+        4'b0101: sum = sum + ms2[0] + ms2[2] + ms2[3] + ms2[5] + ms2[6];
+        4'b0110: sum = sum + ms2[0] + ms2[2] + ms2[3] + ms2[4] + ms2[5] + ms2[6];
+        4'b0111: sum = sum + ms2[0] + ms2[1] + ms2[2];
+        4'b1000: sum = sum + ms2[0] + ms2[1] + ms2[2] + ms2[3] + ms2[4] + ms2[5] + ms2[6];
+        4'b1001: sum = sum + ms2[0] + ms2[1] + ms2[2] + ms2[5] + ms2[6];
+    endcase
+    case(random_num[11:8])
+        4'b0000: sum = sum + ms3[0] + ms3[1] + ms3[2] + ms3[3] + ms3[4] + ms3[5];
+        4'b0001: sum = sum + ms3[1] + ms3[2];
+        4'b0010: sum = sum + ms3[0] + ms3[1] + ms3[3] + ms3[4] + ms3[6];
+        4'b0011: sum = sum + ms3[0] + ms3[1] + ms3[2] + ms3[3] + ms3[6];
+        4'b0100: sum = sum + ms3[1] + ms3[2] + ms3[5] + ms3[6];
+        4'b0101: sum = sum + ms3[0] + ms3[2] + ms3[3] + ms3[5] + ms3[6];
+        4'b0110: sum = sum + ms3[0] + ms3[2] + ms3[3] + ms3[4] + ms3[5] + ms3[6];
+        4'b0111: sum = sum + ms3[0] + ms3[1] + ms3[2];
+        4'b1000: sum = sum + ms3[0] + ms3[1] + ms3[2] + ms3[3] + ms3[4] + ms3[5] + ms3[6];
+        4'b1001: sum = sum + ms3[0] + ms3[1] + ms3[2] + ms3[5] + ms3[6];
+    endcase
+    case(random_num[15:12])
         4'b0000: sum = sum + s1[0] + s1[1] + s1[2] + s1[3] + s1[4] + s1[5];
         4'b0001: sum = sum + s1[1] + s1[2];
         4'b0010: sum = sum + s1[0] + s1[1] + s1[3] + s1[4] + s1[6];
@@ -181,7 +329,7 @@ module top_square(
         4'b1000: sum = sum + s1[0] + s1[1] + s1[2] + s1[3] + s1[4] + s1[5] + s1[6];
         4'b1001: sum = sum + s1[0] + s1[1] + s1[2] + s1[5] + s1[6];
     endcase
-    case(random_num[7:4])
+    case(random_num[19:16])
         4'b0000: sum = sum + s2[0] + s2[1] + s2[2] + s2[3] + s2[4] + s2[5];
         4'b0001: sum = sum + s2[1] + s2[2];
         4'b0010: sum = sum + s2[0] + s2[1] + s2[3] + s2[4] + s2[6];
@@ -190,7 +338,7 @@ module top_square(
         4'b0101: sum = sum + s2[0] + s2[2] + s2[3] + s2[5] + s2[6];
         4'b0110: sum = sum + s2[0] + s2[2] + s2[3] + s2[4] + s2[5] + s2[6];
     endcase
-    case(random_num[11:8])
+    case(random_num[23:20])
         4'b0000: sum = sum + m1[0] + m1[1] + m1[2] + m1[3] + m1[4] + m1[5];
         4'b0001: sum = sum + m1[1] + m1[2];
         4'b0010: sum = sum + m1[0] + m1[1] + m1[3] + m1[4] + m1[6];
@@ -202,7 +350,7 @@ module top_square(
         4'b1000: sum = sum + m1[0] + m1[1] + m1[2] + m1[3] + m1[4] + m1[5] + m1[6];
         4'b1001: sum = sum + m1[0] + m1[1] + m1[2] + m1[5] + m1[6];
     endcase
-    case(random_num[15:12])
+    case(random_num[27:24])
         4'b0000: sum = sum + m2[0] + m2[1] + m2[2] + m2[3] + m2[4] + m2[5];
         4'b0001: sum = sum + m2[1] + m2[2];
         4'b0010: sum = sum + m2[0] + m2[1] + m2[3] + m2[4] + m2[6];
@@ -211,7 +359,7 @@ module top_square(
         4'b0101: sum = sum + m2[0] + m2[2] + m2[3] + m2[5] + m2[6];
         4'b0110: sum = sum + m2[0] + m2[2] + m2[3] + m2[4] + m2[5] + m2[6];
     endcase
-    case(random_num[19:16])
+    case(random_num[31:28])
         4'b0000: sum = sum + h1[0] + h1[1] + h1[2] + h1[3] + h1[4] + h1[5];
         4'b0001: sum = sum + h1[1] + h1[2];
         4'b0010: sum = sum + h1[0] + h1[1] + h1[3] + h1[4] + h1[6];
@@ -223,15 +371,69 @@ module top_square(
         4'b1000: sum = sum + h1[0] + h1[1] + h1[2] + h1[3] + h1[4] + h1[5] + h1[6];
         4'b1001: sum = sum + h1[0] + h1[1] + h1[2] + h1[5] + h1[6];
     endcase
-    case(random_num[23:20])
+    case(random_num[35:32])
         4'b0000: sum = sum + h2[0] + h2[1] + h2[2] + h2[3] + h2[4] + h2[5];
         4'b0001: sum = sum + h2[1] + h2[2];
+        4'b0010: sum = sum + h2[0] + h2[2] + h2[3] + h2[5] + h2[6];
+    endcase
+
+    case(mode)
+        2'b00: begin
+            // if in 12hr mode
+            if (clockfmt == 1) begin
+                // always display M
+                sum = sum + M[0] + M[1] + M[2] + M[3];
+
+                if (am_pm == 0)
+                    sum = sum + PA[0] + PA[1] + PA[2] + PA[4] + PA[5] + PA[6];
+                else if (am_pm == 1)
+                    sum = sum + PA[0] + PA[1] + PA[4] + PA[5] + PA[6];
+            end 
+        
+            // display CLOCK
+            sum = sum + clk5[0] + clk5[1] + clk5[2] + clk5[3];
+            sum = sum + clk4[0] + clk4[1] + clk4[2];
+            sum = sum + clk3[0] + clk3[1] + clk3[2] + clk3[3] + clk3[4] + clk3[5];
+            sum = sum + clk2[0] + clk2[1] + clk2[2] + clk2[3];
+            sum = sum + clk1[0] + clk1[1] + clk1[2] + clk1[3] + clk1[4];
+        end
+        2'b01: begin
+            //display STOPWATCH
+            sum = sum + sw9[0] + sw9[1] + sw9[2] + sw9[3] + sw9[4];
+            sum = sum + sw8[0] + sw8[1];
+            sum = sum + sw7[0] + sw7[1] + sw7[2] + sw7[3] + sw7[4] + sw7[5];
+            sum = sum + sw6[0] + sw6[1] + sw6[2] + sw6[3] + sw6[4];
+            sum = sum + sw5[0] + sw5[1] + sw5[2] + sw5[3] + sw5[4] + sw5[5];
+            sum = sum + sw4[0] + sw4[1] + sw4[2] + sw4[3] + sw4[4] + sw4[5];
+            sum = sum + sw3[0] + sw3[1];
+            sum = sum + sw2[0] + sw2[1] + sw2[2] + sw2[3];
+            sum = sum + sw1[0] + sw1[1] + sw1[2] + sw1[3] + sw1[4];
+        end
+        2'b10: begin
+            //display TIMER
+            sum = sum + t5[0] + t5[1];
+            sum = sum + t4[0] + t4[1] + t4[2];
+            sum = sum + t3[0] + t3[1] + t3[2] + t3[3] + t3[4] + t3[5];
+            sum = sum + t2[0] + t2[1] + t2[2] + t2[3] + t2[4];
+            sum = sum + t1[0] + t1[1] + t1[2] + t1[3] + t1[4] + t1[5];
+        end
     endcase
     
     // always display the colons
     sum = sum + c2[1] + c2[0] + c1[1] + c1[0];
     
-    if (sum > 0) green = 1;
+    // if the mode is clock / timer and we are editing, blink the clock
+    if (editmode && (mode == 2'b00 || mode == 2'b10)) begin
+        counter <= counter + 28'd1;
+        
+        if (counter >= blinker-1)
+            counter <= 28'd0;
+        editblinker <= (counter < blinker/4) ? 1'b0 : 1'b1;
+        
+        if (editblinker && sum > 0) grid = 1;
+    end
+    else
+        if (sum > 0) grid = 1;
   end
     
     

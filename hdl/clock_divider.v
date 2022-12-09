@@ -8,7 +8,7 @@ module clock_divider(
     reg[27:0] counter = 28'd0;
     
     // 1kHz = 1ms period
-    parameter kHz = 28'd1000000;       // 100 * 10^6 / 10^3
+    parameter kHz = 28'd100000;       // 100 * 10^6 / 10^3
     
     always @(posedge clk) begin
         counter <= counter + 28'd1;
