@@ -1,8 +1,6 @@
-module clock12_24(input clk, m_sw, bD, bL, bR, bC,
-    output fmt, ampm, edit, [3:0]hrL, [3:0]hrR, [3:0]mL, [3:0]mR, [3:0]sL, [3:0]sR, [3:0]milL, [3:0]milC, [3:0]milR
-    );
+module clock12_24(input clk, m_sw, bD, bL, bR, bC, output fmt, ampm, edit, [35:0]outReg);
     reg fmt, ampm = 0, edit;
-    reg [3:0]hrL, hrR, mL, mR, sL, sR, milL, milC, milR;
+    reg [35:0]outReg;
 	reg edit_mode = 1;
 	reg [35:0] timeReg = 0;	//For the AM/PM bit, AM = 0, PM = 1!!!
 	reg [1:0] currDigit = 0;
@@ -124,19 +122,19 @@ module clock12_24(input clk, m_sw, bD, bL, bR, bC,
 	always@(posedge clk) begin
 		if(fmt) begin
 			case(timeReg[35:28])
-				8'b00000000: {hrL, hrR} <= 8'b00010010;
-				8'b00100000: {hrL, hrR} <= 8'b00001000;
-				8'b00100001: {hrL, hrR} <= 8'b00001001;
+				8'b00000000: outReg[35:28] <= 8'b00010010;
+				8'b00100000: outReg[35:28] <= 8'b00001000;
+				8'b00100001: outReg[35:28] <= 8'b00001001;
 				default: begin
-					if(timeReg[35:28] > 8'b00010010) {hrL, hrR} <= timeReg[35:28] - 8'b00010010;
-					else {hrL, hrR} <= timeReg[35:28];
+					if(timeReg[35:28] > 8'b00010010) outReg[35:28] <= timeReg[35:28] - 8'b00010010;
+					else outReg[35:28] <= timeReg[35:28];
 				end
 			endcase
 		end
-		else {hrL, hrR} <= timeReg[35:28];
+		else outReg[35:28] <= timeReg[35:28];
 		if(timeReg[35:28] > 8'b00010001) ampm <= 1;
 		else ampm <= 0;
 		
-		{edit, mL, mR, sL, sR, milL, milC, milR} <= {edit_mode, timeReg[27:0]};
+		{edit, outReg[27:0]} <= {edit_mode, timeReg[27:0]};
 	end
 endmodule
