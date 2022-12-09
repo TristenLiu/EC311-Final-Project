@@ -1,0 +1,46 @@
+input buttonCenter
+input buttonUp
+input buttonLeft
+input buttonRight
+input buttonDown
+
+// the BTN inputs from FPGA should only be mapped to the current mode
+if mode = timer
+	timer_button_L <= BTNL
+	timer_button_C <= BTNC
+    ...
+
+//  module inputs & button maps
+timer
+  start/stop = bL
+	toggle edit mode = bC
+		move to left digit = bL
+		move to right digit = bR
+		increment digit = bC
+    decrement digit = bD
+	reset = bD
+
+24hr/12hr
+  change mode 12hr = switch
+	toggle edit mode = bD
+	  move to left digit = bL
+		move to right digit = bR
+		increment digit = bC
+    decrement digit = bD
+	reset = bD
+
+stopwatch
+  start = bL
+  stop = bR
+	reset = bD
+	
+
+bU = mode switch 24hr -> timer -> stopwatch -> 24hr
+bC
+bL
+bR
+bD
+
+	  bU
+bL	bC	bR
+	  bD
