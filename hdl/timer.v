@@ -97,7 +97,7 @@ module timer(clk, bC, bL, bD, bR, out_o, curr_digit, edit, done);
 					       else out_o[31:28] <= out_o[31:28] + 4'b0001;
 					   end
 					   else if(bD) begin
-					       if(out_o[31:28] == 4'b1001) out_o[31:28] <= 0;
+					       if(out_o[31:28] == 0) out_o[31:28] <= 4'b1001;
 							else out_o[31:28] <= out_o[31:28] - 4'b0001;
 					   end
 					end
@@ -127,7 +127,7 @@ module timer(clk, bC, bL, bD, bR, out_o, curr_digit, edit, done);
 							else out_o[19:16] <= out_o[19:16] + 4'b0001;
 			 			end
 	           			else if(bD) begin
-						    if(out_o[19:16] == 0) out_o[19:16] <= 4'b1001;
+						    if(out_o[19:16] == 0) out_o[19:16] <= 4'b0101;
 						    else out_o[19:16] <= out_o[19:16] - 4'b0001;
 				    	end
 				    end
