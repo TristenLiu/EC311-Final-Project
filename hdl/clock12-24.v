@@ -70,36 +70,26 @@ module clock12_24(clk, m_sw, bD, bL, bR, bC, fmt, ampm, edit, currDigit, outReg)
 				else currDigit <= currDigit - 2'b01;
 			end
 			else if(bR) begin
-				if(currDigit == 2'b11) begin currDigit <= 0; edit_mode <= 0; end
+				if(currDigit == 2'b10) begin currDigit <= 0; edit_mode <= 0; end
 				else currDigit <= currDigit + 2'b01;
 			end
 			else begin 
 				case(currDigit)
 					2'b00:	begin
 						if(bC) begin
-							if(timeReg[35:32] == 4'b0010) timeReg[35:32] <= 0;
-							else timeReg[35:32] <= timeReg[35:32] + 4'b0001;
+							if(timeReg[35:28] == 8'b00100011) timeReg[35:28] <= 0;
+							else if(timeReg[35:28] == 8'b00011001) timeReg[35:28] <= 8'b00100000;
+							else if(timeReg[35:28] == 8'b00001001) timeReg[35:28] <= 8'b00010000;
+							else timeReg[35:28] <= timeReg[35:28] + 8'b00000001;
 						end
 						else if(bD) begin
-							if(timeReg[35:32] == 0) timeReg[35:32] <= 4'b0010;
-							else timeReg[35:32] <= timeReg[35:32] - 4'b0001;
+							if(timeReg[35:28] == 0) timeReg[35:28] <= 8'b00100011;
+							else if(timeReg[35:28] == 8'b00100000) timeReg[35:28] <= 8'b00011001;
+							else if(timeReg[35:28] == 8'b00010000) timeReg[35:28] <= 8'b00001001;
+							else timeReg[35:28] <= timeReg[35:28] - 8'b00000001;
 						end
 					end
-					2'b01:	begin
-						if(bC) begin
-							if(timeReg[35:28] == 8'b00100011) timeReg[31:28] <= 0;	//Digit h2 resets to 0 at 4 if h1 is 1 and to 1 at 9 otherwise.
-							else if(timeReg[31:28] == 4'b1001) timeReg[31:28] <= 0;
-							else timeReg[31:28] <= timeReg[31:28] + 4'b0001;
-						end
-						else if(bD) begin
-							if(timeReg[31:28] == 0) begin	//Digit h2 resets to 2 if h1 is 1 and to 9 otherwise.
-								if(timeReg[35:32] == 4'b0010) timeReg[31:28] <= 4'b0011;
-								else timeReg[31:28] <= 4'b1001;
-							end
-							else timeReg[31:28] <= timeReg[31:28] - 4'b0001;
-						end
-					end
-					2'b10:	begin	//MinL
+					2'b01:	begin	//MinL
 						if(bC) begin
 							if(timeReg[27:24] == 4'b0101) timeReg[27:24] <= 0;
 							else timeReg[27:24] <= timeReg[27:24] + 4'b0001;
@@ -109,83 +99,20 @@ module clock12_24(clk, m_sw, bD, bL, bR, bC, fmt, ampm, edit, currDigit, outReg)
 							else timeReg[27:24] <= timeReg[27:24] - 4'b0001;
 						end
 					end
-					2'b11:	begin
+					2'b10:	begin
 						if(bC) begin
-							if(timeReg[27:24] == 4'b1001) timeReg[27:24] <= 0;
-							else timeReg[27:24] <= timeReg[27:24] + 4'b0001;
-						end
-						else if(bD) begin
-							if(timeReg[27:24] == 0) timeReg[27:24] <= 4'b1001;
-							else timeReg[27:24] <= timeReg[27:24] - 4'b0001;
-						end
-					end
+							if(timeReg[23:20] == 4'b1001) timeReg[23:20] <= 0;
+							else timeReg[23:20] <= timeReg[23:20] + 4'b0001;
+			 			end
+	           			else if(bD) begin
+						    if(timeReg[23:20] == 0) timeReg[23:20] <= 4'b1001;
+						    else timeReg[23:20] <= timeReg[23:20] - 4'b0001;
+				    	end
+				    end
 				endcase
 			end
 		end
 	end
-	
-//	always@(posedge clk) begin
-//		if(edit_mode) begin //Edit mode ( ; _ ;) Only gonna give control down to the minute (down to the second for the timer!)
-//			timeReg[19:0] <= 0;
-			
-//			if(bL) begin 
-//				if(currDigit == 0) begin currDigit <= 0; edit_mode <= 0; end
-//				else currDigit <= currDigit - 2'b01;
-//			end
-//			else if(bR) begin
-//				if(currDigit == 2'b11) begin currDigit <= 0; edit_mode <= 0; end
-//				else currDigit <= currDigit + 2'b01;
-//			end
-//			else begin 
-//				case(currDigit)
-//					2'b00:	begin
-//						if(bC) begin
-//							if(timeReg[35:32] == 4'b0010) timeReg[35:32] <= 0;
-//							else timeReg[35:32] <= timeReg[35:32] + 4'b0001;
-//						end
-//						else if(bD) begin
-//							if(timeReg[35:32] == 0) timeReg[35:32] <= 4'b0010;
-//							else timeReg[35:32] <= timeReg[35:32] - 4'b0001;
-//						end
-//					end
-//					2'b01:	begin
-//						if(bC) begin
-//							if(timeReg[35:28] == 8'b00100011) timeReg[31:28] <= 0;	//Digit h2 resets to 0 at 4 if h1 is 1 and to 1 at 9 otherwise.
-//							else if(timeReg[31:28] == 4'b1001) timeReg[31:28] <= 0;
-//							else timeReg[31:28] <= timeReg[31:28] + 4'b0001;
-//						end
-//						else if(bD) begin
-//							if(timeReg[31:28] == 0) begin	//Digit h2 resets to 2 if h1 is 1 and to 9 otherwise.
-//								if(timeReg[35:32] == 4'b0010) timeReg[31:28] <= 4'b0011;
-//								else timeReg[31:28] <= 4'b1001;
-//							end
-//							else timeReg[31:28] <= timeReg[31:28] - 4'b0001;
-//						end
-//					end
-//					2'b10:	begin	//MinL
-//						if(bC) begin
-//							if(timeReg[27:24] == 4'b0101) timeReg[27:24] <= 0;
-//							else timeReg[27:24] <= timeReg[27:24] + 4'b0001;
-//						end
-//						else if(bD) begin
-//							if(timeReg[27:24] == 0) timeReg[27:24] <= 4'b0101;
-//							else timeReg[27:24] <= timeReg[27:24] - 4'b0001;
-//						end
-//					end
-//					2'b11:	begin
-//						if(bC) begin
-//							if(timeReg[27:24] == 4'b1001) timeReg[27:24] <= 0;
-//							else timeReg[27:24] <= timeReg[27:24] + 4'b0001;
-//						end
-//						else if(bD) begin
-//							if(timeReg[27:24] == 0) timeReg[27:24] <= 4'b1001;
-//							else timeReg[27:24] <= timeReg[27:24] - 4'b0001;
-//						end
-//					end
-//				endcase
-//			end
-//		end
-//	end
 	
 	//Formatting logic
 	always@(posedge clk) begin
